@@ -1,0 +1,5 @@
+# commands are key:value pairs 
+# key is the sentence to listen for
+# value is the command to run when the key is spoken
+
+hello world:echo "hello world"
