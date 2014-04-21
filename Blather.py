@@ -118,7 +118,7 @@ class Blather:
 		biggestKeyCount = ret['biggestKeyCount']
 
 		#find the match percentage
-		percentMatch = calculate_match_percentage(biggestKeySet, biggestKeyCount)
+		percentMatch = self.calculate_match_percentage(biggestKeySet, biggestKeyCount)
 
 		#call the process
 		if biggestKeyCount > 0 and ((len(textWords) <= 2 and len(biggestKeySet) == len(textWords)) or percentMatch >= PERCENT_MATCH_LIMIT): #must be equal or a 60% match
@@ -173,7 +173,7 @@ class Blather:
 		return False
 
 	def search_for_matches(self, textWords):
-		ret = {'biggestkey':'', 'biggestKeySet':{}, 'biggestKeyCount':0}
+		ret = {'biggestKey':'', 'biggestKeySet':{}, 'biggestKeyCount':0}
 		for key in self.commands.keys():			
 			#split the keys on each word
 			words = set(key.split(" "))
