@@ -12,6 +12,7 @@ from optparse import OptionParser
 
 #set up a default keyword
 #overwritten by "keyword" in commands.conf
+#TODO: make this a class variable and command-line input
 keyword = ["loki"]
 PERCENT_MATCH_LIMIT = 60
 
@@ -101,36 +102,30 @@ class Blather:
 			hfile.close()
 
 	def recognizer_finished(self, recognizer, text):
+		#split the words spoken into an array
 		t = text.lower()
-		#is there a matching command?
-		#TODO: Make this smarter. We can search the commands and make a closest match.
-		textWords = text.lower().split(" ")
+		textWords = t.split(" ")
 
 		#get the keys array for all commands
 		biggestKey = ""
 		biggestKeySet = []
 		biggestKeyCount = 0
 		
-		for key in self.commands.keys():			
-			#split the keys on each word
-			words = set(key.split(" "))
-			#append the keyword to the command if it's not there already
-			if len(set(keyword).intersection(set(words))) == 0:
-				words.update(keyword)
-			#find the matching words
-			matches = words.intersection(set(textWords))
-			#determine if the words match
-			if len(matches) > 1 and len(matches) > biggestKeyCount and len(set(keyword).intersection(set(textWords))) > 0:
-				biggestKeySet = words
-				biggestKeyCount = len(matches)
-				biggestKey = key
-		percentMatch = 0
-		if len(biggestKeySet) > 0:
-			percentMatch = (biggestKeyCount/float(len(biggestKeySet))) * 100
+		#TODO: work in variables from spoken text, eg: Blather what does %1 mean?
+		ret = self.search_for_matches(textWords)
+		biggestKey = ret['biggestKey']
+		biggestKeySet = ret['biggestKeySet']
+		biggestKeyCount = ret['biggestKeyCount']
+
+		#find the match percentage
+		percentMatch = calculate_match_percentage(biggestKeySet, biggestKeyCount)
+
+		#call the process
 		if biggestKeyCount > 0 and ((len(textWords) <= 2 and len(biggestKeySet) == len(textWords)) or percentMatch >= PERCENT_MATCH_LIMIT): #must be equal or a 60% match
 			print("Best match: " + biggestKey, "Detected: " + text.lower(), "Percent match: " + str(percentMatch));
 			cmd = self.commands[biggestKey]
 			print cmd
+			#TODO: work in variables from spoken text, eg: Blather what does %1 mean?
 			subprocess.call(cmd, shell=True)
 			self.log_history(text)
 		else:
@@ -176,6 +171,29 @@ class Blather:
 				return resource
 		#if we get this far, no resource was found
 		return False
+
+	def search_for_matches(self, textWords):
+		ret = {'biggestkey':'', 'biggestKeySet':{}, 'biggestKeyCount':0}
+		for key in self.commands.keys():			
+			#split the keys on each word
+			words = set(key.split(" "))
+			#append the keyword to the command if it's not there already
+			if len(set(keyword).intersection(set(words))) == 0:
+				words.update(keyword)
+			#find the matching words
+			matches = words.intersection(set(textWords))
+			#determine if the words match
+			if len(matches) > 1 and len(matches) > ret['biggestKeyCount'] and len(set(keyword).intersection(set(textWords))) > 0:
+				ret['biggestKeySet'] = words
+				ret['biggestKeyCount'] = len(matches)
+				ret['biggestKey'] = key
+		return ret
+
+	def calculate_match_percentage(self, biggestKeySet, biggestKeyCount):
+		percentMatch = 0
+		if len(biggestKeySet) > 0:
+			percentMatch = (biggestKeyCount/float(len(biggestKeySet))) * 100
+		return percentMatch
 
 
 
