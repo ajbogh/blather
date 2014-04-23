@@ -117,6 +117,11 @@ class Blather:
 		biggestKeySet = ret['biggestKeySet']
 		biggestKeyCount = ret['biggestKeyCount']
 
+		#TODO: this			
+		if "%" in biggestKey:
+			#key contains a variable and we have to handle it differently
+			
+
 		#find the match percentage
 		percentMatch = self.calculate_match_percentage(biggestKeySet, biggestKeyCount)
 
@@ -172,9 +177,15 @@ class Blather:
 		#if we get this far, no resource was found
 		return False
 
+	# search_for_matches searches the list of commands for one that matches textWords
+	# @param {list} textWords - The list of spoken words, lowercased.
+	# @return {set} - A set containing 
+	#                 - biggestKey - the most likely command match
+	#                 - biggestKeySet - a list representation of the biggestKey
+	#                 - biggestKeyCount - the number of matching words from textWords 
 	def search_for_matches(self, textWords):
 		ret = {'biggestKey':'', 'biggestKeySet':{}, 'biggestKeyCount':0}
-		for key in self.commands.keys():			
+		for key in self.commands.keys():
 			#split the keys on each word
 			words = set(key.split(" "))
 			#append the keyword to the command if it's not there already
