@@ -111,7 +111,6 @@ class Blather:
 		biggestKeySet = []
 		biggestKeyCount = 0
 		
-		#TODO: work in variables from spoken text, eg: Blather what does %1 mean?
 		ret = self.search_for_matches(textWords)
 		biggestKey = ret['biggestKey']
 		biggestKeySet = ret['biggestKeySet']
@@ -125,7 +124,6 @@ class Blather:
 			print("Best match: " + biggestKey, "Detected: " + text.lower(), "Percent match: " + str(percentMatch));
 			cmd = self.commands[biggestKey]
 			print cmd
-			#TODO: work in variables from spoken text, eg: Blather what does %1 mean?
 			subprocess.call(cmd, shell=True)
 			self.log_history(text)
 		else:
