@@ -1,7 +1,7 @@
-#Blather
+# Blather
 Blather is a speech recognizer that will run commands when a user speaks preset sentences.
 
-##Requirements
+## Requirements
 1. pocketsphinx
 2. gstreamer-0.10 (and what ever plugin has pocket sphinx support)
 3. gstreamer-0.10 base plugins (required for alsa)
@@ -9,7 +9,7 @@ Blather is a speech recognizer that will run commands when a user speaks preset 
 5. pygtk (only required for the Gtk based UI)
 6. python-psutil
 
-##Usage
+## Usage
 0. move commands.tmp to ~/.config/blather/commands.conf and fill the file with sentences and command to run
 1. Run Blather.py, this will generate ~/.config/blather/sentences.corpus based on sentences in the 'commands' file
 2. quit blather (there is a good chance it will just segfault)
@@ -23,34 +23,34 @@ Blather is a speech recognizer that will run commands when a user speaks preset 
     * to use a microphone other than the system default, use the -d flag
 7. start talking
 
-####Bonus
+#### Bonus
 once the sentences.corpus file has been created, run the language_updater.sh script to automate the process of creating and downloading language files.
 
-####Examples
+#### Examples
 To run blather with the GTK UI and start in continuous listen mode:
-./Blather.py -i g -c
+    ./Blather.py -i g -c
 
 To run blather with no UI and using a USB microphone recognized and device 2:
 ./Blather.py -d 2
 
-####Finding the Device Number of a USB microphone
+#### Finding the Device Number of a USB microphone
 There are a few ways to find the device number of a USB microphone.
 
 * `cat /proc/asound/cards`
 * `arecord -l`
 
-####Keyword Activation
+#### Keyword Activation
 Blather uses a keyword for activation. You may choose any keyword you like such as "Blather", "Hal", "Computer", "Jarvis", "R2", etc. 
 Find the keyword example in the commands.tmp for more information.
 
-####Plugins
+#### Plugins
 Plugin scripts can be created within the ~/plugins directory. These can be any file type that can be executed in the terminal using absolute or relative paths.
 For example scriptname.sh, where it can be executed by typing ~/plugins/scriptname.sh
 
 The script can contain any code necessary to execute a task. No command-line parameters will be passed, however the script may use any resource such as 
 websites, APIs, or services.
 
-####Cancelling commands
+#### Cancelling commands
 Some commands can start applications or phrases that may need to be cancelled. This can become apparent when using espeak commands and large phrases. 
 It is useful to issue a "cancel" command to inform the speach recognition system that the previous command should be stopped.
 
