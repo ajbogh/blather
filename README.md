@@ -39,6 +39,7 @@ There are a few ways to find the device number of a USB microphone.
 * `cat /proc/asound/cards`
 * `arecord -l`
 
+## Features
 #### Keyword Activation
 Blather uses a keyword for activation. You may choose any keyword you like such as "Blather", "Hal", "Computer", "Jarvis", "R2", etc. 
 Find the keyword example in the commands.tmp for more information.
