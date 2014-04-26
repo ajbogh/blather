@@ -15,6 +15,9 @@ shut up:cancel
 enough:cancel
 stop command:cancel
 
+# This is a basic command
 hello world:echo "hello world"
 
+# Plugins can be ran by using the plugins/script.ext path.
+# All plugins must be in the format "command:plugins/script.ext"
 email:plugins/thunderbird.sh
