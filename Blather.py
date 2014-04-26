@@ -2,23 +2,27 @@
 
 # -- this code is licensed GPLv3
 # Copyright 2013 Jezra
+# Modifications by: Allan Bogh - ajbogh@allanbogh.com
 
 import sys
 import signal
 import gobject
 import os.path
 import subprocess
+import psutil
 from optparse import OptionParser
 
 #set up a default keyword
 #overwritten by "keyword" in commands.conf
-#TODO: make this a class variable and command-line input
-keyword = ["loki"]
-PERCENT_MATCH_LIMIT = 60
+keyword = []
+PERCENT_MATCH_LIMIT = 75
 
 #where are the files?
 conf_dir = os.path.expanduser("~/.config/blather")
 lang_dir = os.path.join(conf_dir, "language")
+#we now use a plugin directory for proper use of subprocess.Popen
+file_dir = os.path.dirname(os.path.abspath(__file__))
+plugin_dir = os.path.join(file_dir, "plugins")
 command_file = os.path.join(conf_dir, "commands.conf")
 strings_file = os.path.join(conf_dir, "sentences.corpus")
 history_file = os.path.join(conf_dir, "blather.history")
@@ -123,9 +127,21 @@ class Blather:
 		if biggestKeyCount > 0 and ((len(textWords) <= 2 and len(biggestKeySet) == len(textWords)) or percentMatch >= PERCENT_MATCH_LIMIT): #must be equal or a 60% match
 			print("Best match: " + biggestKey, "Detected: " + text.lower(), "Percent match: " + str(percentMatch));
 			cmd = self.commands[biggestKey]
-			print cmd
-			subprocess.call(cmd, shell=True)
-			self.log_history(text)
+			if cmd == "cancel" and hasattr(self, 'runningProcess'):
+				print("Cancelling previous command with PID "+str(self.runningProcess.pid))
+				
+				self.terminate_child_processes(self.runningProcess.pid)
+
+				#terminate parent process
+				self.runningProcess.terminate();
+			elif cmd != "cancel":
+				print cmd
+				if "plugins/" in cmd:
+					#execute a plugin script
+					self.runningProcess = subprocess.Popen(os.path.join(file_dir,cmd), shell=True)
+				else:
+					self.runningProcess = subprocess.Popen(cmd, shell=True)
+				self.log_history(text)
 		else:
 			print("No matching command", "Percent match: " + str(percentMatch))
 		#if there is a UI and we are not continuous listen
@@ -193,6 +209,19 @@ class Blather:
 			percentMatch = (biggestKeyCount/float(len(biggestKeySet))) * 100
 		return percentMatch
 
+	# terminate_child_processes kills any child processes under a parent pid.
+	# It uses pgrep to list child processes, so the system must have pgrep installed in order
+	# to use the 'cancel' commands
+	def terminate_child_processes(self, pid):
+		out = subprocess.Popen(['pgrep', '-P', str(pid)], stdout=subprocess.PIPE).communicate()[0]
+		childProcesses = out.splitlines()
+		# Kill any orphaned children.
+		for pid in childProcesses:
+			#recursive call to kill entire family tree
+			self.terminate_child_processes(int(pid))
+			print("Killing child with PID "+str(pid))
+			p = psutil.Process(int(pid))
+			p.terminate()
 
 
 if __name__ == "__main__":

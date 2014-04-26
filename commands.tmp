@@ -2,4 +2,19 @@
 # key is the sentence to listen for
 # value is the command to run when the key is spoken
 
+# The keyword will be used to invoke the listener.
+# You can say the keyword at any time in continuous listening mode.
+# The keyword can be used at any point within the command.
+# This keyword is like "Hal", or "Jarvis", or "Computer", you must say it to activate the system.
+Hal:keyword
+
+# Cancels a running command by terminating it
+cancel:cancel
+quiet:cancel
+shut up:cancel
+enough:cancel
+stop command:cancel
+
 hello world:echo "hello world"
+
+email:plugins/thunderbird.sh

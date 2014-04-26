@@ -7,6 +7,7 @@ Blather is a speech recognizer that will run commands when a user speaks preset 
 3. gstreamer-0.10 base plugins (required for alsa)
 4. pyside (only required for the Qt based UI)
 5. pygtk (only required for the Gtk based UI)
+6. python-psutil
 
 ##Usage
 0. move commands.tmp to ~/.config/blather/commands.conf and fill the file with sentences and command to run
@@ -37,3 +38,25 @@ There are a few ways to find the device number of a USB microphone.
 
 * `cat /proc/asound/cards`
 * `arecord -l`
+
+####Keyword Activation
+Blather uses a keyword for activation. You may choose any keyword you like such as "Blather", "Hal", "Computer", "Jarvis", "R2", etc. 
+Find the keyword example in the commands.tmp for more information.
+
+####Plugins
+Plugin scripts can be created within the ~/plugins directory. These can be any file type that can be executed in the terminal using absolute or relative paths.
+For example scriptname.sh, where it can be executed by typing ~/plugins/scriptname.sh
+
+The script can contain any code necessary to execute a task. No command-line parameters will be passed, however the script may use any resource such as 
+websites, APIs, or services.
+
+####Cancelling commands
+Some commands can start applications or phrases that may need to be cancelled. This can become apparent when using espeak commands and large phrases. 
+It is useful to issue a "cancel" command to inform the speach recognition system that the previous command should be stopped.
+
+Custom cancel commands can be configured in the commands.conf file in the format of "[yourword]:cancel". See the commands.tmp file for examples.
+
+To prevent commands from being cancelled you can use linux screen to start the program in a disconnected thread:
+screen -d -m thunderbird
+
+When using screen any cancel command or terminating Blather will leave the application running. This is especially useful for things like email or browser applications.
