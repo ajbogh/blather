@@ -9,20 +9,19 @@ import signal
 import gobject
 import os.path
 import subprocess
+import shutil
 import psutil
 from optparse import OptionParser
 
-#set up a default keyword
-#overwritten by "keyword" in commands.conf
-keyword = []
+#keywords defined in the commands.conf file
+keywords = []
 PERCENT_MATCH_LIMIT = 75
 
 #where are the files?
 conf_dir = os.path.expanduser("~/.config/blather")
 lang_dir = os.path.join(conf_dir, "language")
-#we now use a plugin directory for proper use of subprocess.Popen
 file_dir = os.path.dirname(os.path.abspath(__file__))
-plugin_dir = os.path.join(file_dir, "plugins")
+plugin_dir = os.path.join(conf_dir, "plugins")
 command_file = os.path.join(conf_dir, "commands.conf")
 strings_file = os.path.join(conf_dir, "sentences.corpus")
 history_file = os.path.join(conf_dir, "blather.history")
@@ -31,6 +30,8 @@ dic_file = os.path.join(lang_dir,'dic')
 #make the lang_dir if it doesn't exist
 if not os.path.exists(lang_dir):
 	os.makedirs(lang_dir)
+if not os.path.exists(plugin_dir):
+	shutil.copytree(os.path.join(file_dir, "plugins"), plugin_dir)
 
 class Blather:
 	def __init__(self, opts):
@@ -82,8 +83,8 @@ class Blather:
 						(key,value) = line.split(":",1)
 						print key, value
 						#get the keyword out of the commands file
-						if value == "keyword" and key.strip().lower() not in keyword:
-							keyword.append(key.strip().lower())
+						if value == "keyword" and key.strip().lower() not in keywords:
+							keywords.append(key.strip().lower())
 							continue
 						self.commands[key.strip().lower()] = value.strip()
 						strings.write( key.strip()+"\n")
@@ -187,17 +188,19 @@ class Blather:
 		return False
 
 	def search_for_matches(self, textWords):
+		#TODO: https://github.com/ajbogh/blather/issues/1
 		ret = {'biggestKey':'', 'biggestKeySet':{}, 'biggestKeyCount':0}
 		for key in self.commands.keys():			
 			#split the keys on each word
 			words = set(key.split(" "))
 			#append the keyword to the command if it's not there already
-			if len(set(keyword).intersection(set(words))) == 0:
-				words.update(keyword)
+			##only if the timed keyword activation is needed
+			if len(set(keywords).intersection(set(words))) == 0:
+				words.update(keywords)
 			#find the matching words
 			matches = words.intersection(set(textWords))
 			#determine if the words match
-			if len(matches) > 1 and len(matches) > ret['biggestKeyCount'] and len(set(keyword).intersection(set(textWords))) > 0:
+			if len(matches) > 1 and len(matches) > ret['biggestKeyCount'] and len(set(keywords).intersection(set(textWords))) > 0:
 				ret['biggestKeySet'] = words
 				ret['biggestKeyCount'] = len(matches)
 				ret['biggestKey'] = key
