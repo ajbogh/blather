@@ -212,15 +212,16 @@ class Blather:
 			words = set(key.split(" "))
 			#append the keyword to the command if it's not there already
 			##only if the timed keyword activation is needed
-			if len(set(keywords).intersection(set(words))) == 0:
+			if self.continuous_listen and len(set(keywords).intersection(set(words))) == 0:
 				words.update(keywords)
 			#find the matching words
 			matches = words.intersection(set(textWords))
 			#determine if the words match
-			if len(matches) > 1 and len(matches) > ret['biggestKeyCount'] and len(set(keywords).intersection(set(textWords))) > 0:
-				ret['biggestKeySet'] = words
-				ret['biggestKeyCount'] = len(matches)
-				ret['biggestKey'] = key
+			if !self.continuous_listen or self.continuous_listen and len(set(keywords).intersection(set(textWords))) > 0:
+				if len(matches) > 1 and len(matches) > ret['biggestKeyCount']:
+					ret['biggestKeySet'] = words
+					ret['biggestKeyCount'] = len(matches)
+					ret['biggestKey'] = key
 		return ret
 
 	def calculate_match_percentage(self, biggestKeySet, biggestKeyCount):
