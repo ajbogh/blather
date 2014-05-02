@@ -47,6 +47,10 @@ class Blather:
 		self.read_commands()
 		self.recognizer = Recognizer(lang_file, dic_file, opts.microphone )
 		self.recognizer.connect('finished',self.recognizer_finished)
+	
+		self.commandFileTime = 0
+		#updates language file and commands on start
+		self.checkCommandFile()
 
 		self.commandFileTime = os.path.getmtime(command_file)
 
