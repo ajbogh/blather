@@ -45,8 +45,8 @@ Blather uses a keyword for activation. You may choose any keyword you like such 
 Find the keyword example in the commands.tmp for more information.
 
 #### Plugins
-Plugin scripts can be created within the ~/plugins directory. These can be any file type that can be executed in the terminal using absolute or relative paths.
-For example scriptname.sh, where it can be executed by typing ~/plugins/scriptname.sh
+Plugin scripts can be created within the ~/.config/blather/plugins directory. These can be any file type that can be executed in the terminal using absolute or relative paths.
+For example scriptname.sh, where it can be executed by typing ~/.config/blather/plugins/scriptname.sh
 
 The script can contain any code necessary to execute a task. No command-line parameters will be passed, however the script may use any resource such as 
 websites, APIs, or services.
@@ -58,6 +58,9 @@ It is useful to issue a "cancel" command to inform the speach recognition system
 Custom cancel commands can be configured in the commands.conf file in the format of "[yourword]:cancel". See the commands.tmp file for examples.
 
 To prevent commands from being cancelled you can use linux screen to start the program in a disconnected thread:
-screen -d -m thunderbird
+    screen -d -m thunderbird
 
 When using screen any cancel command or terminating Blather will leave the application running. This is especially useful for things like email or browser applications.
+
+#### Automatic command updates
+If the commands.conf file is updated then Blather will automatically detect that change on load as well as AFTER a voice is recognized and it will run the language updater and command read method to incorporate the changes into its system. This allows you to change the commands.conf file at any time, say a single command, then wait for the update to happen. It usually takes a couple of seconds before you can use the new commands.
