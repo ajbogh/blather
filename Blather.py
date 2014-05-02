@@ -25,6 +25,7 @@ plugin_dir = os.path.join(conf_dir, "plugins")
 command_file = os.path.join(conf_dir, "commands.conf")
 strings_file = os.path.join(conf_dir, "sentences.corpus")
 history_file = os.path.join(conf_dir, "blather.history")
+language_update_script = os.path.join(file_dir, "language_updater.sh")
 lang_file = os.path.join(lang_dir,'lm')
 dic_file = os.path.join(lang_dir,'dic')
 #make the lang_dir if it doesn't exist
@@ -47,6 +48,8 @@ class Blather:
 		self.recognizer = Recognizer(lang_file, dic_file, opts.microphone )
 		self.recognizer.connect('finished',self.recognizer_finished)
 
+		self.commandFileTime = os.path.getmtime(command_file)
+
 		#read options
 		if opts.interface != None:
 			if opts.interface == "q":
@@ -67,7 +70,6 @@ class Blather:
 
 		if self.opts.history:
 			self.history = []
-
 
 	def read_commands(self):
 		#read the.commands file
@@ -152,6 +154,8 @@ class Blather:
 				self.recognizer.pause()
 			#let the UI know that there is a finish
 			self.ui.finished(t)
+		#check if the command.conf file has changed.
+		self.checkCommandFile()
 
 	def run(self):
 		if self.ui:
@@ -161,6 +165,15 @@ class Blather:
 
 	def quit(self):
 		sys.exit(0)
+
+	def checkCommandFile(self):
+		newFileTime = os.path.getmtime(command_file)
+		if newFileTime > self.commandFileTime:
+			print("Command.conf file modified")
+			subprocess.call(language_update_script)
+			print("Language file updated")
+			self.commandFileTime = newFileTime
+			self.read_commands()
 
 	def process_command(self, UI, command):
 		print command
