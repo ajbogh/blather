@@ -49,7 +49,7 @@ class Blather:
 		self.recognizer = Recognizer(lang_file, dic_file, opts.microphone )
 		self.recognizer.connect('finished',self.recognizer_finished)
 		self.matchTime = 0
-		self.keywordTimeLimit = 15 #set to 0 to always speak the keyword
+		self.keywordTimeLimit = opts.keytime #set to 0 to always speak the keyword
 	
 		self.commandFileTime = 0
 		#updates language file and commands on start
@@ -269,6 +269,9 @@ if __name__ == "__main__":
 	parser.add_option("-m", "--microphone", type="int",
 		action="store", dest="microphone", default=None,
 		help="Audio input card to use (if other than system default)")
+	parser.add_option("-k", "--keytime", type="int",
+		action="store", dest="keytime", default=0,
+		help="In continuous mode, the amount of time (in seconds) after the keyword is initially used before having to say the keyword again to activate a command.")
 
 	(options, args) = parser.parse_args()
 	#make our blather object
