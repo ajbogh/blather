@@ -66,6 +66,7 @@ It is useful to issue a "cancel" command to inform the speach recognition system
 Custom cancel commands can be configured in the commands.conf file in the format of "[yourword]:cancel". See the commands.tmp file for examples.
 
 To prevent commands from being cancelled you can use linux screen to start the program in a disconnected thread:
+
     screen -d -m thunderbird
 
 When using screen any cancel command or terminating Blather will leave the application running. This is especially useful for things like email or browser applications.
