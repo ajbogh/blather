@@ -11,6 +11,7 @@ import os.path
 import subprocess
 import shutil
 import psutil
+import time
 from optparse import OptionParser
 
 #keywords defined in the commands.conf file
@@ -47,6 +48,8 @@ class Blather:
 		self.read_commands()
 		self.recognizer = Recognizer(lang_file, dic_file, opts.microphone )
 		self.recognizer.connect('finished',self.recognizer_finished)
+		self.matchTime = 0
+		self.keywordTimeLimit = 15 #set to 0 to always speak the keyword
 	
 		self.commandFileTime = 0
 		#updates language file and commands on start
@@ -132,6 +135,7 @@ class Blather:
 
 		#call the process
 		if biggestKeyCount > 0 and ((len(textWords) <= 2 and len(biggestKeySet) == len(textWords)) or percentMatch >= PERCENT_MATCH_LIMIT): #must be equal or a 60% match
+			self.matchTime = time.time()
 			print("Best match: " + biggestKey, "Detected: " + text.lower(), "Percent match: " + str(percentMatch));
 			cmd = self.commands[biggestKey]
 			if cmd == "cancel" and hasattr(self, 'runningProcess'):
@@ -207,21 +211,26 @@ class Blather:
 	def search_for_matches(self, textWords):
 		#TODO: https://github.com/ajbogh/blather/issues/1
 		ret = {'biggestKey':'', 'biggestKeySet':{}, 'biggestKeyCount':0}
-		for key in self.commands.keys():			
+		currentTime = time.time()
+		matchLimit = 1
+		for key in self.commands.keys():	
+			if self.commands[key] == "keyword":
+				continue
 			#split the keys on each word
 			words = set(key.split(" "))
 			#append the keyword to the command if it's not there already
 			##only if the timed keyword activation is needed
-			if self.continuous_listen and len(set(keywords).intersection(set(words))) == 0:
+			if self.continuous_listen and (currentTime - self.matchTime) > self.keywordTimeLimit and len(set(keywords).intersection(set(words))) == 0:
 				words.update(keywords)
 			#find the matching words
 			matches = words.intersection(set(textWords))
 			#determine if the words match
-			if !self.continuous_listen or self.continuous_listen and len(set(keywords).intersection(set(textWords))) > 0:
-				if len(matches) > 1 and len(matches) > ret['biggestKeyCount']:
-					ret['biggestKeySet'] = words
-					ret['biggestKeyCount'] = len(matches)
-					ret['biggestKey'] = key
+			if self.continuous_listen and len(set(keywords).intersection(set(textWords))) > 0 and (currentTime - self.matchTime) > self.keywordTimeLimit:
+				matchLimit = 2
+			if len(matches) >= matchLimit and len(matches) > ret['biggestKeyCount']:
+				ret['biggestKeySet'] = words
+				ret['biggestKeyCount'] = len(matches)
+				ret['biggestKey'] = key
 		return ret
 
 	def calculate_match_percentage(self, biggestKeySet, biggestKeyCount):
