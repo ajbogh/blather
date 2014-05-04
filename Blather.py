@@ -82,6 +82,8 @@ class Blather:
 		#read the.commands file
 		file_lines = open(command_file)
 		strings = open(strings_file, "w")
+		self.commands = {}
+		keywords = []
 		for line in file_lines:
 				print line
 				#trim the white spaces
