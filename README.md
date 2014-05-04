@@ -37,9 +37,9 @@ To run blather with the GTK UI and start in continuous listen mode where you onl
 
     "[keyword] command" ... "command 2" ... 10 seconds goes by ... "[keyword] command 3"
 
-To run blather with no UI and using a USB microphone recognized and device 2:
+To run blather with no UI and using a USB microphone recognized and microphone device 2:
 
-    ./Blather.py -d 2
+    ./Blather.py -m 2
 
 #### Finding the Device Number of a USB microphone
 There are a few ways to find the device number of a USB microphone.
