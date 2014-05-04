@@ -28,15 +28,18 @@ once the sentences.corpus file has been created, run the language_updater.sh scr
 
 #### Examples
 To run blather with the GTK UI and start in continuous listen mode:
+
     ./Blather.py -i g -c
 
 To run blather with the GTK UI and start in continuous listen mode where you only have to say the keyword once during commands that are 10 seconds apart:
+
     ./Blather.py -i g -c -k 10
 
     "[keyword] command" ... "command 2" ... 10 seconds goes by ... "[keyword] command 3"
 
 To run blather with no UI and using a USB microphone recognized and device 2:
-./Blather.py -d 2
+
+    ./Blather.py -d 2
 
 #### Finding the Device Number of a USB microphone
 There are a few ways to find the device number of a USB microphone.
