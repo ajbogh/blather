@@ -8,10 +8,10 @@ import sys
 import signal
 import gobject
 import os.path
-import subprocess
-import shutil
-import psutil
-import time
+import subprocess #used to execute commands
+import shutil #used to copy plugins directory
+import psutil #used for reading process ID
+import time #used for keyword time option
 from optparse import OptionParser
 
 #keywords defined in the commands.conf file
