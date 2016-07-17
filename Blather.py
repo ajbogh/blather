@@ -43,14 +43,14 @@ class Blather:
 		#keep track of the opts
 		self.opts = opts
 		ui_continuous_listen = False
-		self.continuous_listen = False
+		self.continuous_listen = opts.continuous
 		self.commands = {}
 		self.read_commands()
 		self.recognizer = Recognizer(lang_file, dic_file, opts.microphone )
 		self.recognizer.connect('finished',self.recognizer_finished)
 		self.matchTime = 0
 		self.keywordTimeLimit = opts.keytime #set to 0 to always speak the keyword
-	
+       
 		self.commandFileTime = 0
 		#updates language file and commands on start
 		self.checkCommandFile()
@@ -83,7 +83,7 @@ class Blather:
 		file_lines = open(command_file)
 		strings = open(strings_file, "w")
 		self.commands = {}
-		keywords = []
+		self.keywords = []
 		for line in file_lines:
 				print line
 				#trim the white spaces
@@ -94,8 +94,8 @@ class Blather:
 						(key,value) = line.split(":",1)
 						print key, value
 						#get the keyword out of the commands file
-						if value == "keyword" and key.strip().lower() not in keywords:
-							keywords.append(key.strip().lower())
+						if value == "keyword" and key.strip().lower() not in self.keywords:
+							self.keywords.append(key.strip().lower())
 							continue
 						self.commands[key.strip().lower()] = value.strip()
 						strings.write( key.strip()+"\n")
@@ -126,14 +126,18 @@ class Blather:
 		biggestKey = ""
 		biggestKeySet = []
 		biggestKeyCount = 0
-		
+
 		ret = self.search_for_matches(textWords)
+
 		biggestKey = ret['biggestKey']
 		biggestKeySet = ret['biggestKeySet']
 		biggestKeyCount = ret['biggestKeyCount']
 
 		#find the match percentage
 		percentMatch = self.calculate_match_percentage(biggestKeySet, biggestKeyCount)
+
+		if self.continuous_listen and len(set(self.keywords).intersection(set(biggestKeySet))) == 0:
+			biggestKeyCount = 0
 
 		#call the process
 		if biggestKeyCount > 0 and ((len(textWords) <= 2 and len(biggestKeySet) == len(textWords)) or percentMatch >= PERCENT_MATCH_LIMIT): #must be equal or a 60% match
@@ -142,7 +146,7 @@ class Blather:
 			cmd = self.commands[biggestKey]
 			if cmd == "cancel" and hasattr(self, 'runningProcess'):
 				print("Cancelling previous command with PID "+str(self.runningProcess.pid))
-				
+
 				self.terminate_child_processes(self.runningProcess.pid)
 
 				#terminate parent process
@@ -215,19 +219,22 @@ class Blather:
 		ret = {'biggestKey':'', 'biggestKeySet':{}, 'biggestKeyCount':0}
 		currentTime = time.time()
 		matchLimit = 1
-		for key in self.commands.keys():	
+		for key in self.commands.keys():
 			if self.commands[key] == "keyword":
 				continue
 			#split the keys on each word
 			words = set(key.split(" "))
 			#append the keyword to the command if it's not there already
 			##only if the timed keyword activation is needed
-			if self.continuous_listen and (currentTime - self.matchTime) > self.keywordTimeLimit and len(set(keywords).intersection(set(words))) == 0:
-				words.update(keywords)
+			if self.keywordTimeLimit > 0 and self.continuous_listen and (currentTime - self.matchTime) > self.keywordTimeLimit and len(set(self.keywords).intersection(set(words))) == 0:
+				words.update(self.keywords)
+			elif len(set(self.keywords).intersection(set(textWords))) > 0:
+				words.update(self.keywords)
+
 			#find the matching words
 			matches = words.intersection(set(textWords))
 			#determine if the words match
-			if self.continuous_listen and len(set(keywords).intersection(set(textWords))) > 0 and (currentTime - self.matchTime) > self.keywordTimeLimit:
+			if self.continuous_listen and len(set(self.keywords).intersection(set(textWords))) > 0 and (currentTime - self.matchTime) > self.keywordTimeLimit:
 				matchLimit = 2
 			if len(matches) >= matchLimit and len(matches) > ret['biggestKeyCount']:
 				ret['biggestKeySet'] = words
@@ -294,4 +301,3 @@ if __name__ == "__main__":
 		print "time to quit"
 		main_loop.quit()
 		sys.exit()
-
