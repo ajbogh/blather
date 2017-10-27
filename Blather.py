@@ -6,7 +6,7 @@
 
 import sys
 import signal
-import gobject
+from gi.repository import GObject as gobject
 import os.path
 import subprocess #used to execute commands
 import shutil #used to copy plugins directory

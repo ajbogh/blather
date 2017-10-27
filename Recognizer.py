@@ -2,11 +2,12 @@
 # -- this code is licensed GPLv3
 # Copyright 2013 Jezra
 
-import pygst
-pygst.require('0.10')
-import gst
+import gi
+gi.require_version('Gst', '1.0')
 import os.path
-import gobject
+from gi.repository import GObject as gobject
+from gi.repository import Gst as gst
+gst.init(None)
 
 #define some global variables
 this_dir = os.path.dirname( os.path.abspath(__file__) )
@@ -25,17 +26,16 @@ class Recognizer(gobject.GObject):
 			audio_src = 'autoaudiosrc'
 
 		#build the pipeline
-		cmd = audio_src+' ! audioconvert ! audioresample ! vader name=vad ! pocketsphinx name=asr ! appsink sync=false'
+		cmd = audio_src+' ! audioconvert ! audioresample ! pocketsphinx name=asr ! appsink sync=false'
 		self.pipeline=gst.parse_launch( cmd )
 		#get the Auto Speech Recognition piece
 		asr=self.pipeline.get_by_name('asr')
-		asr.connect('result', self.result)
+		bus=self.pipeline.get_bus()
+		bus.add_signal_watch()
+		bus.connect('message::element', self.element_message)
 		asr.set_property('lm', language_file)
 		asr.set_property('dict', dictionary_file)
 		asr.set_property('configured', True)
-		#get the Voice Activity DEtectoR
-		self.vad = self.pipeline.get_by_name('vad')
-		self.vad.set_property('auto-threshold',True)
 
 	def listen(self):
 		self.pipeline.set_state(gst.STATE_PLAYING)
@@ -43,6 +43,11 @@ class Recognizer(gobject.GObject):
 	def pause(self):
 		self.vad.set_property('silent', True)
 		self.pipeline.set_state(gst.STATE_PAUSED)
+
+	def element_message(self, bus, msg):
+		msgtype = msg.get_structure().get_name()
+		if msgtype != 'pocketsphinx' and msg.get_structure().get_value('final'):
+			self.result(self, bus, msg.get_structure().get_value('hypothesis'), msg.get_structure().get_value('confidence'))
 
 	def result(self, asr, text, uttid):
 		#emit finished
