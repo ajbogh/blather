@@ -26,23 +26,26 @@ class Recognizer(gobject.GObject):
 			audio_src = 'autoaudiosrc'
 
 		#build the pipeline
-		cmd = audio_src+' ! audioconvert ! audioresample ! pocketsphinx name=asr ! appsink sync=false'
+		cmd = audio_src+' ! audioconvert ! audioresample ! pocketsphinx name=asr'
+		#  ! appsink sync=false
 		self.pipeline=gst.parse_launch( cmd )
 		#get the Auto Speech Recognition piece
-		asr=self.pipeline.get_by_name('asr')
+		# asr=self.pipeline.get_by_name('asr')
 		bus=self.pipeline.get_bus()
 		bus.add_signal_watch()
 		bus.connect('message::element', self.element_message)
-		asr.set_property('lm', language_file)
-		asr.set_property('dict', dictionary_file)
-		asr.set_property('configured', True)
+		# asr.set_property('lm', language_file)
+		# asr.set_property('dict', dictionary_file)
+		# asr.set_property('configured', True)
 
 	def listen(self):
-		self.pipeline.set_state(gst.STATE_PLAYING)
+		self.pipeline.set_state(gst.State.PLAYING)
+		return
 
 	def pause(self):
-		self.vad.set_property('silent', True)
-		self.pipeline.set_state(gst.STATE_PAUSED)
+		# self.vad.set_property('silent', True)
+		self.pipeline.set_state(gst.State.PAUSED)
+		return
 
 	def element_message(self, bus, msg):
 		msgtype = msg.get_structure().get_name()

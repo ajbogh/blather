@@ -2,10 +2,12 @@
 # -- this code is licensed GPLv3
 # Copyright 2013 Jezra
 import sys
-import gobject
+from gi.repository import GObject as gobject
 #Gtk
-import pygtk
-import gtk
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
 
 class UI(gobject.GObject):
 	__gsignals__ = {
@@ -16,7 +18,7 @@ class UI(gobject.GObject):
 		gobject.GObject.__init__(self)
 		self.continuous = continuous
 		#make a window
-		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+		self.window = gtk.Window(gtk.WindowType.TOPLEVEL)
 		self.window.set_default_size(325, 55)
 		self.window.connect("delete_event", self.delete_event)
 		#give the window a name
@@ -43,7 +45,7 @@ class UI(gobject.GObject):
 		#create an accellerator group for this window
 		accel = gtk.AccelGroup()
 		#add the ctrl+q to quit
-		accel.connect_group(gtk.keysyms.q, gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE, self.accel_quit )
+		accel.connect(gdk.KEY_q, gdk.ModifierType.CONTROL_MASK, gtk.AccelFlags.VISIBLE, self.accel_quit )
 		#lock the group
 		accel.lock()
 		#add the group to the window
@@ -91,5 +93,5 @@ class UI(gobject.GObject):
 		self.label.set_text(text)
 
 	def set_icon(self, icon):
-		gtk.window_set_default_icon_from_file(icon)
+		gtk.Window.set_icon_from_file(self.window, icon)
 
