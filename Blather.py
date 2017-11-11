@@ -46,7 +46,7 @@ class Blather:
 		self.continuous_listen = opts.continuous
 		self.commands = {}
 		self.read_commands()
-		self.recognizer = Recognizer(lang_file, dic_file, opts.microphone )
+		self.recognizer = Recognizer(lang_file, dic_file, strings_file, opts.microphone)
 		self.recognizer.connect('finished',self.recognizer_finished)
 		self.matchTime = 0
 		self.keywordTimeLimit = opts.keytime #set to 0 to always speak the keyword
@@ -85,18 +85,16 @@ class Blather:
 		self.commands = {}
 		self.keywords = []
 		for line in file_lines:
-				print line
 				#trim the white spaces
 				line = line.strip()
 				#if the line has length and the first char isn't a hash
 				if len(line) and line[0]!="#":
 						#this is a parsible line
 						(key,value) = line.split(":",1)
-						print key, value
+						print key, ":", value
 						#get the keyword out of the commands file
 						if value == "keyword" and key.strip().lower() not in self.keywords:
 							self.keywords.append(key.strip().lower())
-							continue
 						self.commands[key.strip().lower()] = value.strip()
 						strings.write( key.strip()+"\n")
 
@@ -119,7 +117,7 @@ class Blather:
 
 	def recognizer_finished(self, recognizer, text):
 		#split the words spoken into an array
-		t = text.lower()
+		t = text.strip().lower().replace("-", "")
 		textWords = t.split(" ")
 
 		#get the keys array for all commands
@@ -132,7 +130,7 @@ class Blather:
 		biggestKey = ret['biggestKey']
 		biggestKeySet = ret['biggestKeySet']
 		biggestKeyCount = ret['biggestKeyCount']
-
+		
 		#find the match percentage
 		percentMatch = self.calculate_match_percentage(biggestKeySet, biggestKeyCount)
 
@@ -215,7 +213,6 @@ class Blather:
 		return False
 
 	def search_for_matches(self, textWords):
-		#TODO: https://github.com/ajbogh/blather/issues/1
 		ret = {'biggestKey':'', 'biggestKeySet':{}, 'biggestKeyCount':0}
 		currentTime = time.time()
 		matchLimit = 1

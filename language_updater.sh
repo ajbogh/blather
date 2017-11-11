@@ -25,6 +25,8 @@ curl -C - -O $(cat $tempfile).dic
 curl -C - -O $(cat $tempfile).lm
 
 # mv em to the right name/place
+mkdir --parents $langdir
+
 mv *.dic $langdir/dic
 mv *.lm $langdir/lm
 
