@@ -1,6 +1,12 @@
 # Blather
 Blather is a speech recognizer that will run commands when a user speaks preset sentences.
 
+## DEPRECATION NOTICE
+
+**Blather is now deprecated**. If you are willing to take this project over you may. Please feel free to fork it and continue working on this. If you'd like to stay with the Python version you may attempt to add fixes to your forked copy, however I am not a Python expert and would not be able to help as much as I would like.
+
+I have now created a new version of this utility in Javascript, called "[Norman](https://github.com/ajbogh/norman)". If you'd like to have the same service-level functionality and are comfortable with Javascript and npm, then I recommend switching to this new version.
+
 ## Requirements
 1. pocketsphinx
 2. gstreamer-0.10 (and what ever plugin has pocket sphinx support)
